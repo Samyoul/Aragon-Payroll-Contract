@@ -16,7 +16,7 @@ contract PayrollInterface {
   function getEmployee(uint256 employeeId) public constant returns (address accountAddress, address[] allowedTokens, uint256 yearlyUSDSalary, uint lastPayDay); // Return all important info too
 
   function calculatePayrollBurnrate() public constant returns (uint256); // Monthly usd amount spent in salaries
-  function calculatePayrollRunway() public constant returns (uint256); // Days until the contract can run out of funds
+  function calculatePayrollRunway() public returns (uint256); // Days until the contract can run out of funds
 
   /* EMPLOYEE ONLY */
   function determineAllocation(address[] tokens, uint256[] distribution) public; // only callable once every 6 months
