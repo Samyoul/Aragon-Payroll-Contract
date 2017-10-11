@@ -93,17 +93,17 @@ I've made this method polymorphic because Ether does not have an address and so 
 ```javascript
 
 var tokens = [
-  '<contract_address>',
-  '0xa74476443119A942dE498590Fe1f2454d7D4aC0d',
-  '0xd26114cd6EE289AccF82350c8d8487fedB8A0C07',
-  '0x960b236A07cf122663c4303350609A66A7B288C0'
+  '<contract_address>',                         //ETH
+  '0xa74476443119A942dE498590Fe1f2454d7D4aC0d', //GNT
+  '0xd26114cd6EE289AccF82350c8d8487fedB8A0C07', //OMG
+  '0x960b236A07cf122663c4303350609A66A7B288C0'  //ANT
 ];
 
 var distribution = [
-  20,
-  10,
-  10,
-  60
+  20, //ETH
+  10, //GNT
+  10, //OMG
+  60  //ANT
 ];
 
 ```
