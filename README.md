@@ -1,4 +1,4 @@
-# Aragon-Payroll-Contract
+# Aragon Payroll Contract
 
 ## Introduction
 
