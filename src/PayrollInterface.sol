@@ -6,9 +6,11 @@ contract PayrollInterface {
   function setEmployeeSalary(uint256 employeeId, uint256 yearlyUSDSalary) public;
   function removeEmployee(uint256 employeeId) public;
 
-  function addFunds() payable public returns(string);
   function escapeHatch() public;
-  // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
+  function backToBusiness() public;
+  
+  function addFunds() payable public returns(string);
+  function tokenFallback() public;
 
   function getEmployeeCount() public constant returns (uint256);
   function getEmployee(uint256 employeeId) public constant returns (address accountAddress, address[] allowedTokens, uint256 yearlyUSDSalary, uint lastPayDay); // Return all important info too
