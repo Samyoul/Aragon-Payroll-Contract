@@ -48,9 +48,9 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
     
     /**
      * employees
-     * @dev mapping of employee ids to the respective Employee data structures
+     * @dev array of Employees, id are the index
      */
-    mapping (uint256 => Employee) employees;
+    Employee[] employees;
     
     /**
      * employee ids
@@ -136,6 +136,9 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
     mapping(address => uint256) tokenIds;
     
     
+    mapping(address => uint256) tokenDemand;
+    
+    
     //--------------------------------//
     //           EVENTS               //
     //--------------------------------//
@@ -152,20 +155,12 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
         uint256 _value
     );
     
-    event EmployeeAdded(
-        
-    );
-    
-    event EmployeeRemoved(
-        
-    );
     
     /**
      * 
      * CONTRACT METHODS
      * 
      */
-    
     
     //--------------------------------//
     //         CONSTRUCTOR            //
@@ -263,7 +258,7 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
             0,
             0
         );
-        employeeIds[msg.sender] = employeeId;
+        employeeIds[accountAddress] = employeeId;
         
         _updateTotalYearlySalaries(0, initialYearlyUSDSalary);
         return employeeId;
@@ -287,7 +282,10 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
      */
     function removeEmployee(uint256 employeeId) public ifOwner ifNotEscaped{
         _adjustSalary(employeeId, 0);
+        Employee storage employee = employees[employeeId];
+        delete employeeIds[employee.accountAddress];
         delete employees[employeeId];
+        
         employeeCount--;
     }
     
@@ -456,20 +454,50 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
     /**
      * Calculate Payroll Runway
      * @dev Calculates the number of days before the contract will run out of funds
+     * @dev Because this each token balance can expire independantly we need to display the lowest balance to days ratio
      * @return the number of days before the contract will run out of funds
      */
-    function calculatePayrollRunway() public constant returns (uint256){
-        // Get ether balance in USD
-        uint256 totalUSDBalance = this.balance * etherUSDRate;
+    function calculatePayrollRunway() public returns (uint256){
+        // Get the balances of each token
+        uint256[] memory balances = new uint256[](tokensHandled.length+1);
         
-        // totalUSDBalance = get the USD balance foreach token balance, then total it
-        for (uint i = 0; i < tokensHandled.length; i++) {
-            Token storage token = tokensHandled[i];
+        // Get ether balance in USD and reset demand count
+        balances[0] = this.balance * etherUSDRate;
+        tokenDemand[address(this)] = 0;
+        
+        // Reset mapping of total demand by token and get balance of each token
+        for (uint256 z = 0; z < tokensHandled.length; z++){
+            Token storage token = tokensHandled[z];
+            tokenDemand[token.tokenAddress] = 0;
+            
             HumanStandardToken humanToken = HumanStandardToken(token.tokenAddress);
-            totalUSDBalance += (humanToken.balanceOf(this) * token.usdRate);
+            balances[z+1] += (humanToken.balanceOf(this) * token.usdRate);
         }
         
-        return (totalUSDBalance / totalYearlyUSDSalary / 365);
+        // Get the total annual demand for each employee
+        for (uint256 i = 0; i < employees.length; i++){
+            Employee storage employee = employees[i];
+            
+            for (uint256 x = 0; x < employee.requestedTokens.length; x++){
+                tokenDemand[employee.requestedTokens[x]] += employee.yearlyUSDSalary * employee.tokenDistribution[x] / 100;
+            }
+        }
+        
+        // Compare token demand against balance
+        // Set Ether as the lowest balance to begin with
+        uint256 lowestBalanceDays = balances[0] / tokenDemand[this] / 365;
+        
+        // look at the other balances
+        for (uint256 y = 1; y > balances.length; y++){
+            Token storage tokenCompare = tokensHandled[z-1];
+            uint256 tokenDays = balances[y] / tokenDemand[tokenCompare.tokenAddress] / 365;
+            
+            if (tokenDays < lowestBalanceDays){
+                lowestBalanceDays = tokenDays;
+            }
+        }
+        
+        return lowestBalanceDays;
     }
     
 
