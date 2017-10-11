@@ -152,6 +152,13 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
         uint256 _value
     );
     
+    event EmployeeAdded(
+        
+    );
+    
+    event EmployeeRemoved(
+        
+    );
     
     /**
      * 
@@ -591,23 +598,23 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
     //         ORACLE ONLY            //
     //--------------------------------//
     /**
-     * Set Ether USD Exchange rate
-     * @dev Callback method only callable by the authorised oracle, sets the ETH/USD exchange rate
-     * @param usdExchangeRate is the rate at which 1 ether can be purchased with USD
-     */
-    function setEtherUSDExchangeRate(uint256 usdExchangeRate) public ifOracle ifNotEscaped{
-        etherUSDRate = usdExchangeRate;
-    }
-    
-    /**
      * Set Token USD Exchange Rate
      * @dev Callback methonf only callable by the authorised oracle, sets the <token>/USD exchange rate
      * @param _token is the contract address that maintains a specific Token
      * @param usdExchangeRate is the rate at which 1 token can be purchased with USD
      */
-    function setTokenUSDExchangeRate(address _token, uint256 usdExchangeRate) public ifOracle ifNotEscaped{
+    function setExchangeRate(address _token, uint256 usdExchangeRate) public ifOracle ifNotEscaped{
         Token storage token = tokensHandled[tokenIds[_token]];
         HumanStandardToken humanToken = HumanStandardToken(token.tokenAddress);
         token.usdRate = usdExchangeRate * humanToken.decimals();
+    }
+    
+    /**
+     * Set Ether USD Exchange rate
+     * @dev Callback method only callable by the authorised oracle, sets the ETH/USD exchange rate
+     * @param usdExchangeRate is the rate at which 1 ether can be purchased with USD
+     */
+    function setExchangeRate(uint256 usdExchangeRate) public ifOracle ifNotEscaped{
+        etherUSDRate = usdExchangeRate;
     }
 }
