@@ -152,13 +152,6 @@ contract Payroll is PayrollInterface, ERC223ReceivingContract {
         uint256 _value
     );
     
-    event EmployeeAdded(
-        
-    );
-    
-    event EmployeeRemoved(
-        
-    );
     
     /**
      * 
