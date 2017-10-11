@@ -107,3 +107,9 @@ var distribution = [
 ];
 
 ```
+
+## TODO
+
+- Discuss the other methods I've added to the contract.
+- Discuss the need to change calculatePayrollRunway()'s signature because it would be more helpful to know which tokens are running low, not just how many days until we run out.
+- Discuss the potential problems of what happens if a token's contract is changed / moved to another address.
