@@ -108,8 +108,30 @@ var distribution = [
 
 ```
 
-## TODO
+### Additional Methods
 
-- Discuss the other methods I've added to the contract.
-- Discuss the need to change calculatePayrollRunway()'s signature because it would be more helpful to know which tokens are running low, not just how many days until we run out.
-- Discuss the potential problems of what happens if a token's contract is changed / moved to another address.
+**switchOracle :**
+
+Functionality that allows the contract owner to change the oracle address if needed, without this functionality the contract would become useless if the oracle address became no longer function or reliable.
+
+**authoriseToken :**
+
+Functionality to allow the contract owner to permit the contract to accept and pay out tokens from a particular address. Useful because ERC223 tokens can be blocked from being transferred if the contract owner has not whitelisted them.
+
+**updateRates :**
+
+Functionality that allows the contract owner to initiate request to the oracle to update the exchange rates for each of the tokens that are authorised to be used with this contract.
+
+## Points of Improvement
+
+As with all software the scope for improvement is never ending, with this contract specifically I've identified a number of areas that require additional attention.
+
+**calculatePayrollRunway :**
+
+I believe that the assumption of this method was to return how many days until the contract has ran out of funds. The problem with this approach is that the contract manages multiple fund balances, each of which can run out independantly of each other, meaning you need to know not only how many days until you run out of funds, but which fund is due to run out. Currently this method only returns a number of days.
+
+The method `calculatePayrollRunway()`'s signature should be changed because it would be more helpful to know not only which tokens are running low, not just how many days until we run out. It would be better if this method returned the USD and token balances of each token contract address along with the number of days each token has left until it runs out.
+
+**Token Contract Address Changes :**
+
+The current setup of this contract means that if an organisation changed its token contract address (like in the case with Hacker Gold), the whole contract would break. The contract stores multiple referrences to token addresses, without a means to refer to and change these, this would leave the contract very broken. The contract therefore needs owner only functionality to migrate one token address to another. This would likely require a refactor of the current structure.
